@@ -1,0 +1,26 @@
+#!/bin/bash
+
+
+#set -u
+mkdir -p /scratch/p309238/handwriting/topthree/
+
+# Define parameter ranges
+hiddenlr=0.001
+outlr=0.0001
+maxamp=1
+minampratio=10
+ndigits=10
+trials=( 1 2 3 4 5 )
+# Create job name
+for trial in "${trials[@]}"; do
+    JOB_NAME="${ndigit}_${hiddenlr}_${outlr}_${maxamp}_${minampratio}"
+    minamp=$(printf "%.10f" "$(echo "$maxamp / $minampratio" | bc -l)" | sed 's/0*$//; s/\.$//; s/^\./0./')
+    mkdir -p /scratch/p309238/handwriting/topthree/digits=${ndigits}/
+    cp /home3/p309238/jobs/handwriting/topthree/submitjobtemplate.sh /home3/p309238/jobs/handwriting/topthree/submitjob.sh
+    sed -i "s/pongjob/$JOB_NAME/" /home3/p309238/jobs/handwriting/topthree/submitjob.sh
+    sbatch /home3/p309238/jobs/handwriting/topthree/submitjob.sh $hiddenlr $outlr $minamp $maxamp $ndigits $trial
+    echo "Submitted: $JOB_NAME"
+done
+
+
+echo "$0 Ready"

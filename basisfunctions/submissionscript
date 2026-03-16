@@ -1,0 +1,36 @@
+#!/bin/bash
+
+
+#set -u
+mkdir -p /scratch/p309238/archerfish/basisfunctions/
+
+# Define parameter ranges
+lrs=( 0.001 0.01 0.1 )
+trials=( 1 2 3 4 5 )
+maxamps=( 0.01 0.1 )
+minampratios=( 10 100 )
+inputpercentages=( 0.1 )
+functiontofit=( "gaussian" "sine" "square" )
+
+# Loop through all combinations
+for lr in "${lrs[@]}"; do
+    for maxamp in "${maxamps[@]}"; do
+        for minampratio in "${minampratios[@]}"; do
+            for inputpercentage in "${inputpercentages[@]}"; do
+                for function in "${functiontofit[@]}"; do
+                    for trial in "${trials[@]}"; do
+
+                        JOB_NAME="trial${trial}_maxamp${maxamp}_minampratio${minampratio}_inputpercentage${inputpercentage}_function${function}"
+
+                        minamp=$(printf "%.10f" "$(echo "$maxamp / $minampratio" | bc -l)" | sed 's/0*$//; s/\.$//; s/^\./0./')
+                        mkdir -p /scratch/p309238/archerfish/basisfunctions/${function}/lr=${lr}_minamp=${minamp}_maxamp=${maxamp}_inp=${inputpercentage}/trial${trial}/
+                        cp /home3/p309238/jobs/archerfish/basisfunctions/submitjobtemplate.sh /home3/p309238/jobs/archerfish/basisfunctions/submitjob.sh
+                        sed -i "s/pongjob/$JOB_NAME/" /home3/p309238/jobs/archerfish/basisfunctions/submitjob.sh
+                        sbatch /home3/p309238/jobs/archerfish/basisfunctions/submitjob.sh $lr $minamp $maxamp $inputpercentage $function $trial
+                    done
+                done
+            done
+        done
+    done
+done
+

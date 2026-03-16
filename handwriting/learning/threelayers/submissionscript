@@ -1,0 +1,36 @@
+#!/bin/bash
+
+
+#set -u
+mkdir -p /scratch/p309238/handwriting/threelayers/
+
+# Define parameter ranges
+hiddenlrs=( 0.001 0.0001)
+outlrs=( 0.001 0.0001 )
+maxamps=( 1 10 20 )
+minampratios=( 10 )
+ndigits=( 1 2 3 4 5 6 7 8 9 10 )
+
+# Loop through all combinations
+for hiddenlr in "${hiddenlrs[@]}"; do
+    for outlr in "${outlrs[@]}"; do
+        for maxamp in "${maxamps[@]}"; do
+            for minampratio in "${minampratios[@]}"; do
+                for ndigit in "${ndigits[@]}"; do
+
+                    # Create job name
+                    JOB_NAME="${ndigit}_${hiddenlr}_${outlr}_${maxamp}_${minampratio}"
+                    minamp=$(printf "%.10f" "$(echo "$maxamp / $minampratio" | bc -l)" | sed 's/0*$//; s/\.$//; s/^\./0./')
+                    mkdir -p /scratch/p309238/handwriting/threelayers/digits=${ndigit}/
+                    cp /home3/p309238/jobs/handwriting/threelayers/submitjobtemplate.sh /home3/p309238/jobs/handwriting/threelayers/submitjob.sh
+                    sed -i "s/pongjob/$JOB_NAME/" /home3/p309238/jobs/handwriting/threelayers/submitjob.sh
+                    sbatch /home3/p309238/jobs/handwriting/threelayers/submitjob.sh $hiddenlr $outlr $minamp $maxamp $ndigit
+                    echo "Submitted: $JOB_NAME"
+                done
+            done
+        done
+    done
+done
+
+
+echo "$0 Ready"
