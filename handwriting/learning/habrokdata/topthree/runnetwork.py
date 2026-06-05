@@ -215,8 +215,6 @@ for side in sides:
     settings = os.listdir(root)
     for setting in settings:
         basepath = root + setting
-
-
         # Pick number 4 to start with
         target = textdict["4"][:,0]
 
@@ -319,4 +317,5 @@ for side in sides:
             # if t == 20:
             #     print(datetime.datetime.now() - t1)
             #     assert()
+
 

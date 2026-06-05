@@ -122,7 +122,6 @@ class Neurons:
 
 
 # Command line parsing 
-
 opts, args = getopt.getopt(sys.argv[1:], "-l:-m:-a:-i:-f:-t:")
 for o, a in opts:
     if o == "-l":
@@ -153,19 +152,10 @@ sine = sine/np.sum(np.abs(sine))
 gaussian = gaussian/np.sum(gaussian)
 square = square/np.sum(square)
 
-# Print the areas under the functions
-# print("Sine area:", np.sum(np.abs(sine)))
-# print("Gaussian area:", np.sum(gaussian))
-# print("Square area:", np.sum(square))
-# fig, axs = plt.subplots(2,2, figsize=(10,10))
-# axs[0,0].plot(sine, color="red")
-# axs[0,1].plot(gaussian, color="green")
-# axs[1,1].plot(square)
-# plt.show()
+
 functions = {"sine": sine, "gaussian": gaussian, "square": square}
 target = functions[functiontofit]
 np.savetxt(f"/scratch/p309238/archerfish/basisfunctions/{functiontofit}/target.txt", target)
-
 
 amplitudes = np.random.uniform(amplitude_minimum , amplitude_maximum, nalphamneurons)
 amplitudes[:int(nalphamneurons/2)] *= -1

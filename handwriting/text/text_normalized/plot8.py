@@ -9,7 +9,7 @@ df = pd.read_csv("8.csv")  # replace with your file
 img = Image.open("8.png")  # replace with the corresponding digit image
 
 # Create figure and axes
-fig, axes = plt.subplots(2, 2, figsize=(1.2, 2))
+fig, axes = plt.subplots(2, 2, figsize=(1.2, 1.7))
 
 # --- Trajectory (x vs y) ---
 axes[0,0].plot(df['x'], df['y'], 'b-', linewidth=2)
@@ -34,5 +34,6 @@ axes[1,1].axis('off')
 plt.subplots_adjust(wspace=0, hspace=0)
 plt.tight_layout(pad=0)
 axes[1,1].remove()
+plt.subplots_adjust(bottom=0.1)
 plt.savefig("handwritten_8.pdf", dpi=300, format="pdf")
 plt.show()

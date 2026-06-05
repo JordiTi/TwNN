@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 root = "./"
 
 functionfolders = [f for f in os.listdir(root) if os.path.isdir(f)]
-fig, axes = plt.subplots(1, 3, figsize=(4.8,3), sharey=True)
+fig, axes = plt.subplots(1, 3, figsize=(4.8,2), sharey=True)
 bestfits = {}
 bestfits["gaussian"] = [0.0001, 0.01]
 bestfits["sine"] = [0.001, 0.01]
@@ -72,14 +72,15 @@ for i, functionfolder in enumerate(sorted(functionfolders)):
                 x = np.arange(-500, 500, 1)
             else:
                 x = np.arange(len(mean_fit))
-
-            axes[i].plot(x, mean_fit, label="mean fit", linewidth=1)
             axes[i].plot(x, target, label="target", linewidth=1)
+
+            axes[i].plot(x, mean_fit, label="mean fit", linewidth=1, linestyle=(0, (1, 0.2)))
             axes[i].fill_between(
                 x,
                 mean_fit - stderr_fit,
                 mean_fit + stderr_fit,
-                alpha=0.3
+                alpha=0.7,
+                color="orange"
             )
             axes[i].set_title(f"{functionfolder.capitalize()}", fontsize=10)
             axes[i].set_xticks([])
@@ -89,6 +90,6 @@ plt.subplots_adjust(wspace=0, hspace=0)
 
 axes[2].legend(fontsize=8 )
 
-plt.savefig("fit_mean.pdf", dpi=300, format="pdf")
+plt.savefig("fit_mean.pdf", dpi=300, format="pdf", bbox_inches='tight')
 
 

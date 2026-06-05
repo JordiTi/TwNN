@@ -13,12 +13,15 @@ ndigits=10
 trials=( 1 2 3 4 5 )
 # Create job name
 for trial in "${trials[@]}"; do
-    JOB_NAME="${ndigit}_${hiddenlr}_${outlr}_${maxamp}_${minampratio}"
+    JOB_NAME="${hiddenlr}_${outlr}"
     minamp=$(printf "%.10f" "$(echo "$maxamp / $minampratio" | bc -l)" | sed 's/0*$//; s/\.$//; s/^\./0./')
     mkdir -p /scratch/p309238/handwriting/topthree/digits=${ndigits}/
-    cp /home3/p309238/jobs/handwriting/topthree/submitjobtemplate.sh /home3/p309238/jobs/handwriting/topthree/submitjob.sh
-    sed -i "s/pongjob/$JOB_NAME/" /home3/p309238/jobs/handwriting/topthree/submitjob.sh
-    sbatch /home3/p309238/jobs/handwriting/topthree/submitjob.sh $hiddenlr $outlr $minamp $maxamp $ndigits $trial
+    cp /home3/p309238/jobs/handwriting/topthree/submitjobtemplatex.sh /home3/p309238/jobs/handwriting/topthree/submitjobx.sh
+    cp /home3/p309238/jobs/handwriting/topthree/submitjobtemplatey.sh /home3/p309238/jobs/handwriting/topthree/submitjoby.sh
+    sed -i "s/pongjob/$JOB_NAME/" /home3/p309238/jobs/handwriting/topthree/submitjobx.sh
+    sed -i "s/pongjob/$JOB_NAME/" /home3/p309238/jobs/handwriting/topthree/submitjoby.sh
+    sbatch /home3/p309238/jobs/handwriting/topthree/submitjobx.sh $hiddenlr $outlr $minamp $maxamp $ndigits $trial
+    sbatch /home3/p309238/jobs/handwriting/topthree/submitjoby.sh $hiddenlr $outlr $minamp $maxamp $ndigits $trial
     echo "Submitted: $JOB_NAME"
 done
 

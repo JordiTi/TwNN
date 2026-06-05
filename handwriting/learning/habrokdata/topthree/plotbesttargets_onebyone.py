@@ -18,7 +18,7 @@ best_settings = {}
 # --------------------------------
 for digit_folder in os.listdir(ROOT):
 
-    if not digit_folder.startswith("digits"):
+    if not digit_folder.startswith("digits=10_1"):
         continue
 
     digit_path = os.path.join(ROOT, digit_folder)

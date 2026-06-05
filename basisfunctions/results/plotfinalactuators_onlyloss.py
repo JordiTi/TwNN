@@ -6,7 +6,7 @@ root = "./"
 
 functionfolders = [f for f in os.listdir(root) if os.path.isdir(f)]
 
-fig, axes = plt.subplots(1, 3, figsize=(4.8,2.8), sharey=True, sharex=True)
+fig, axes = plt.subplots(1, 3, figsize=(4.8,1.9), sharey=True, sharex=True)
 
 colors = ["#D81B60", "#1E88E5", "#FFC107"]
 for i, functionfolder in enumerate(sorted(functionfolders)):
@@ -79,7 +79,10 @@ for i, functionfolder in enumerate(sorted(functionfolders)):
     unique_amp_combos = sorted(set(amps))
 
     # ----- Line plot: amplitude vs loss, lr as legend -----
-
+    axes[i].grid(True, which="major", axis="y")
+    axes[i].grid(True, which="minor", axis="y", alpha=0.8)
+    axes[i].grid(True, which="major", axis="x")
+    axes[i].set_axisbelow(True)
     markers=["D", "X", "s", "o"]
     for idx, amp_combo in enumerate(unique_amp_combos):
 
@@ -88,13 +91,18 @@ for i, functionfolder in enumerate(sorted(functionfolders)):
         lr_vals = lrs[mask]
         loss_vals = values[mask]
 
-        # jitter for strip look
-        jitter = (np.random.rand(len(lr_vals)) - 0.5) * 0.001 * lr_vals
+        sorted_indices = np.argsort(lr_vals)
+        lr_vals_sorted = lr_vals[sorted_indices]
+        loss_vals_sorted = loss_vals[sorted_indices]
 
-        axes[i].scatter(lr_vals + jitter, loss_vals,
-                    alpha=0.7,
-                    label=r"$A_{min}=$" + f"{amp_combo[0]}" + "\n" r"$A_{max}=$" + f"{amp_combo[1]}",
-                    marker=markers[idx], s=25)
+        # # jitter for strip look
+        # jitter = (np.random.rand(len(lr_vals)) - 0.5) * 0.001 * lr_vals
+
+        # axes[i].scatter(lr_vals + jitter, loss_vals,
+        #             alpha=0.7,
+        #             label=r"$A_{min}=$" + f"{amp_combo[0]}" + "\n" r"$A_{max}=$" + f"{amp_combo[1]}",
+        #             marker=markers[idx], s=20)
+        axes[i].plot(lr_vals_sorted, loss_vals_sorted,label=r"$A_{min}=$" + f"{amp_combo[0]}" + "\n" r"$A_{max}=$" + f"{amp_combo[1]}", alpha=0.7)
 
     
     axes[i].set_xscale("log")
@@ -103,15 +111,13 @@ for i, functionfolder in enumerate(sorted(functionfolders)):
     axes[i].set_title(f"{functionfolder.capitalize()}", fontsize=10)
     axes[i].tick_params(axis='both', which='major', labelsize=8)
     axes[i].tick_params(axis='both', which='minor', labelsize=8)
-    axes[i].grid(True, which="major", axis="y", alpha=0.35)
-    axes[i].grid(True, which="minor", axis="y", alpha=0.15)
-    axes[i].grid(True, which="major", axis="x", alpha=0.35)
+
 axes[0].set_ylabel("Final loss", fontsize=8)
 
 
 plt.legend(fontsize=8, markerscale=0.75, handlelength=0.5, 
-           loc="center left", bbox_to_anchor=(1.02, 0.7), borderpad=0.2)
-plt.subplots_adjust(wspace=0.2, hspace=0, bottom=0.18, right=0.78)
-plt.savefig("basis_errors.pdf", dpi=300, format="pdf")
+           loc="center left", bbox_to_anchor=(1.02, 0.54), borderpad=0.2)
+plt.subplots_adjust(wspace=0.2, hspace=0, bottom=0.22, right=0.78)
+plt.savefig("basis_errors_onlylines_alpha.pdf", dpi=300, format="pdf")
 
 

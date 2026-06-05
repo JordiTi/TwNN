@@ -11,7 +11,6 @@ def moving_average(x, w=100):
 
 
 ROOT = "."
-OUTPUT_FILE = "average_last1000_loss.txt"
 
 results = []
 
@@ -38,8 +37,10 @@ for digit_folder in sorted(os.listdir(ROOT)):
         uniquesettings.append(setting.rstrip("_trial12345="))
     uniquesettings = list(set(uniquesettings))
     digits = [0, 1, 2, 3 ,4 ,5 ,6 ,7 ,8, 9]
+
     for setting in uniquesettings:
-        fig, axes = plt.subplots(2, 5, figsize=(4.8, 3.2))
+        allerrors = []
+        fig, axes = plt.subplots(2, 5, figsize=(4.8, 2.4))
         fig.subplots_adjust(wspace=0, hspace=0)
         for digit in digits:
             row = int(digit > 4)
@@ -79,15 +80,17 @@ for digit_folder in sorted(os.listdir(ROOT)):
                     youtput = youtput - ytargetmean
                     xoutputs.append(xoutput)
                     youtputs.append(youtput)
+
+                    allerrors.append(np.nansum(np.abs(xoutput -xtarget))+ np.nansum(np.abs(youtput-ytarget)))
             
             averagex = np.mean(np.array(xoutputs), axis=0)
             averagey = np.mean(np.array(youtputs), axis=0)
 
             minval = np.nanmin([np.nanmin(xtarget), np.nanmin(ytarget)])
             maxval = np.nanmax([np.nanmax(xtarget), np.nanmax(ytarget)])
-            print(row,column)
-            for i in range(len(xoutputs)):
 
+            for i in range(len(xoutputs)):
+                
                 axes[row,column].plot(xoutputs[i], youtputs[i], alpha=0.3)
             axes[row,column].plot(averagex, averagey, linewidth=1, label="mean output")
             axes[row,column].plot(xtarget, ytarget, linewidth=1, linestyle=(0, (5,1)), label="target")
@@ -95,13 +98,14 @@ for digit_folder in sorted(os.listdir(ROOT)):
             axes[row,column].set_ylim(-0.6, 0.6)
             axes[row,column].invert_yaxis()
             if row == 0 and column == 4:
-                axes[row,column].legend(fontsize=8 ,loc='upper left', bbox_to_anchor=(1, 1))
+                axes[row,column].legend(fontsize=8 ,loc='upper left', bbox_to_anchor=(1, 1.06))
             axes[row,column].set_xticks([])
             axes[row,column].set_yticks([])
             axes[row,column].tick_params(left=False, bottom=False)
             # for spine in axes[row,column].spines.values():
             #     spine.set_visible(False)
-
+        print(setting)
+        print(np.sum(np.array(allerrors))/len(uniquesettings)/len(xoutputs))
         plt.savefig(f"./data/meanplots/{setting}_wospine.pdf", dpi=300, format="pdf", bbox_inches='tight')
         plt.close()
             # plt.show()

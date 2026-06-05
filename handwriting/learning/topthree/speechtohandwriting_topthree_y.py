@@ -63,7 +63,7 @@ class Neurons:
         self.dwhist = []
 
         self.chunktime = 0
-        self.finalchunktime = 523
+        self.finalchunktime = 1
 
         self.dw_running = np.zeros([self.ninputs, self.noutputs])
 
@@ -266,8 +266,7 @@ digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 numbers = digits[:totaldigits]
 
 if not os.path.isdir(f"/scratch/p309238/handwriting/topthree/digits={totaldigits}/lrh={lr_hidden}_lro={lr_out}_ami={amplitude_minimum}_ama={amplitude_maximum}_trial={trial}/"):
-    os.mkdir(f"/scratch/p309238/handwriting/topthree/digits={totaldigits}/lrh={lr_hidden}_lro={lr_out}_ami={amplitude_minimum}_ama={amplitude_maximum}_trial={trial}/")
-    
+    assert()
 rng = np.random.default_rng(seed=42)
 
 for t in range(ntrials):

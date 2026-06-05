@@ -17,7 +17,7 @@ results = []
 
 for digit_folder in sorted(os.listdir(ROOT)):
 
-    if not digit_folder.startswith("digits"):
+    if not digit_folder.startswith("digits=10"):
         continue
 
     digit_path = os.path.join(ROOT, digit_folder)
@@ -33,18 +33,22 @@ for digit_folder in sorted(os.listdir(ROOT)):
 
     # collect curves
     for folder in sorted(os.listdir(digit_path)):
-
+        print(folder)
         folder_path = os.path.join(digit_path, folder)
 
         if not os.path.isdir(folder_path):
             continue
-        loss_file = os.path.join(folder_path, "lossx.txt")
+        loss_filex = os.path.join(folder_path, "lossx.txt")
+        loss_filey = os.path.join(folder_path, "lossx.txt")
 
-        if not os.path.exists(loss_file):
+        if not os.path.exists(loss_filex):
             continue
 
-        loss = np.loadtxt(loss_file)
-        loss = moving_average(loss, w=100)
+        lossx = np.loadtxt(loss_filex)
+        lossy = np.loadtxt(loss_filey)
+        lossx = moving_average(lossx, w=100)
+        lossy = moving_average(lossy, w=100)
+        loss = (lossx + lossy)/2
 
         # remove trial component
         setting = "_".join(
@@ -53,12 +57,11 @@ for digit_folder in sorted(os.listdir(ROOT)):
 
         curves_by_setting[setting].append(loss)
 
-
     # compute mean curve per setting
     colors=["green", "orange","blue"]
     cnt = 0
     for setting, curves in curves_by_setting.items():
-
+        print(setting)
         # make all curves same length
         min_len = min(len(c) for c in curves)
         aligned = np.array([c[:min_len] for c in curves])
@@ -73,7 +76,7 @@ for digit_folder in sorted(os.listdir(ROOT)):
 
         last1000 = mean_curve[-1000:] if len(mean_curve) >= 1000 else mean_curve
         avg_loss = np.mean(last1000)
-
+        print(avg_loss)
         results.append((digit, setting, avg_loss))
         cnt += 1
 
@@ -82,6 +85,7 @@ for digit_folder in sorted(os.listdir(ROOT)):
     plt.ylabel("Loss")
     plt.legend(fontsize=8)
     plt.tight_layout()
+    plt.grid(True, "both", "both")
     plt.savefig(f"loss_digit_{digit}.png", dpi=300)
     plt.close()
 

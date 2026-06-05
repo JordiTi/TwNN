@@ -19,7 +19,7 @@ with open(INPUT_FILE) as f:
 digits = np.array(digits)
 losses = np.array(losses)
 
-plt.figure(figsize=(4.8, 2.5))
+plt.figure(figsize=(4.8, 2.38))
 
 unique_digits = sorted(set(digits))
 
@@ -35,9 +35,10 @@ plt.ylabel("Loss", fontsize=8)
 
 plt.xticks(range(len(unique_digits)), [str(d) for d in unique_digits], fontsize=8)
 plt.yticks(fontsize=8)
-plt.grid(True, which="major", axis="y", alpha=0.35)
-plt.grid(True, which="minor", axis="y", alpha=0.15)
-plt.grid(True, which="major", axis="x", alpha=0.35)
+plt.gca().set_axisbelow(True)
+plt.grid(True, which="major", axis="y", alpha=0.99)
+plt.grid(True, which="minor", axis="y", alpha=0.5)
+plt.grid(True, which="major", axis="x")
 plt.tight_layout()
-plt.savefig("loss_per_digit.pdf", dpi=300, format="pdf")
-plt.show()
+plt.savefig("loss_per_digit.pdf", dpi=300, format="pdf", bbox_inches="tight")
+# plt.show()

@@ -72,7 +72,7 @@ for audio_file, S_db in spectrograms.items():
     np.savetxt(output_dir / f'{filename_stem}.txt', S_db)
 
     # Also save a visualization image with consistent scale
-    fig, ax = plt.subplots(figsize=(3.6, 2))
+    fig, ax = plt.subplots(figsize=(3.5, 1.7))
     img = librosa.display.specshow(S_db, 
                                     x_axis='time', y_axis='mel', ax=ax,
                                     vmin=global_min, vmax=global_max, fmax=8000, sr=sr_global, hop_length=hop_length)
@@ -88,7 +88,7 @@ for audio_file, S_db in spectrograms.items():
     cbar = fig.colorbar(img, ax=ax, format='%+2.0f dB')
     cbar.ax.tick_params(labelsize=8) 
     plt.tight_layout()
-    plt.savefig(output_dir / f'{filename_stem}.pdf', dpi=300, bbox_inches='tight', format="pdf")
+    plt.savefig(output_dir / f'{filename_stem}.pdf', dpi=300, bbox_inches="tight", pad_inches=0.05, format="pdf")
     plt.close(fig)
     print(f"Saved: {filename_stem}")
 
