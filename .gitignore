@@ -224,3 +224,5 @@ __marimo__/
 *.csv
 *.xcf
 *.zip
+
+archive/
