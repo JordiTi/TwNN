@@ -26,7 +26,11 @@ def main():
     parser = argparse.ArgumentParser(prog="basefunction", description="Run base function pipeline")
     parser.add_file_arg = parser.add_argument(
         "--step", 
-        choices=["data", "train", "evaluate", "all"], 
+        choices=["data", 
+                 "train", 
+                 "evaluate", 
+                 "all",
+                 "plotbasefunctions"], 
         default="all",
         help="Specify which pipeline step to run"
     )
@@ -41,6 +45,9 @@ def main():
         
     if known_args.step in ["evaluate", "all"]:
         run_script("evaluate.py", extra_args)
+    
+    if known_args.step == "plotbasefunctions":
+        run_script("visualize_data.py")
 
 if __name__ == "__main__":
     main()
