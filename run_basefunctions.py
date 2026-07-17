@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent
 BASEFUNCTION_DIR = ROOT / "src" / "basefunctions"
 
 # Run script with arguments
-def run_script(script_name: str, forward_args: list):
+def run_script(script_name: str, forward_args: list = []):
 
     script_path = BASEFUNCTION_DIR / script_name
 
@@ -47,7 +47,7 @@ def main():
         run_script("evaluate.py", extra_args)
     
     if known_args.step == "plotbasefunctions":
-        run_script("visualize_data.py")
+        run_script("visualizebasefunctions.py")
 
 if __name__ == "__main__":
     main()
