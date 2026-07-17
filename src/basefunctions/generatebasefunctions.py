@@ -1,6 +1,8 @@
 import sys
 import numpy as np
 from pathlib import Path
+import argparse
+import matplotlib.pyplot as plt
 
 '''
 Generates sine, gaussian or block pulse
@@ -17,7 +19,7 @@ length : total length of the signal in datapoints
 width : 1/(2*var)
 '''
 
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
@@ -25,23 +27,41 @@ if str(ROOT_DIR) not in sys.path:
 DATA_DIR = ROOT_DIR / "data/basefunctions/"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def generatetargetfunction(name, length, width):
+def generatetargetfunction(name: str, length: int, width: float):
 
     output = np.zeros(length)
-    if name == "sine":
+    if name in ["sine", "all"]:
         x = np.linspace(0, 2*np.pi, int(length*0.5)) # Start from 0, end with 2*PI
         output[int(length*0.25):int(length*0.75)] = np.sin(x) # Shift to the middle of the signal
-        np.savetxt(DATA_DIR / f"sine_{length}.txt")
-        return output
-    elif name == "gaussian":
+        output = output/np.sum(abs(output))
+        np.savetxt(str(DATA_DIR / f"sine_{length}.txt"), output)
+        print(f"Saved sine in {str(DATA_DIR / f"sine_{length}.txt")}")
+    
+    if name in ["gauss", "all"]:
         x = np.linspace(-length/2, length/2, int(length/2))
         output[int(length*0.25):int(length*0.75)] = np.exp(-width*(x)**2)
-        np.savetxt(DATA_DIR / f"gauss_l{length}_w{width}")
-        return  output
-    elif name == "square":
+        output = output/np.sum(abs(output))
+        plt.plot(output)
+        plt.show()
+        np.savetxt(str(DATA_DIR / f"gauss_l{length}_w{width}.txt"), output)
+        print(f"Saved gauss in {str(DATA_DIR / f"gauss_{length}_{width}.txt")}")
+    
+    if name in ["block", "all"]:
         output[int(length*0.25):int(length*0.75)] = 1
-        np.savetxt(DATA_DIR / f"block_{length}")
-        return output
+        output = output/np.sum(abs(output))
+        np.savetxt(str(DATA_DIR / f"block_{length}.txt"), output)
+        print(f"Saved block in {str(DATA_DIR / f"block_{length}.txt")}")
     
 if __name__ == "__main__":
-    generatetargetfunction()
+
+    parser = argparse.ArgumentParser()
+    # Define what flags this specific script accepts
+    parser.add_argument("--name", type=str, default="sine")
+    parser.add_argument("--length", type=int, default=1000)
+    parser.add_argument("--width", type=float, default=0.0001)
+    args = parser.parse_args()
+
+    name = args.name
+    length = args.length
+    width = args.width
+    generatetargetfunction(name, length, width)
