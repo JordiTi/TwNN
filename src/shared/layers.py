@@ -92,6 +92,7 @@ class SpikingLayer:
         )
 
     def _update_membrane(self, S):
+
         self.Isyns = self.Isyns * self.exp_syn + np.dot(self.weights.T, S)
         self.Vs = self.Vs * self.exp_mem + self.Isyns * self.one_minus_exp_mem
 
@@ -160,7 +161,9 @@ class HiddenLayer(SpikingLayer):
 
 
 class OutputLayer(SpikingLayer):
+    def __init__(self, ninputs, noutputs, config=None, **kwargs):
+        super().__init__(ninputs, noutputs, config=config, **kwargs)
     def update_weight(self, error, lr, dt=1):
         """error: (noutputs,) direct output error, no projection needed."""
-        dw = np.multiply(self.lambda_2.T, error)
+        dw = np.multiply(self.lambda_2, error)
         self._accumulate_and_apply(dw, lr, dt)
