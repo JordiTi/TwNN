@@ -224,5 +224,6 @@ __marimo__/
 *.csv
 *.xcf
 *.zip
+*.npy
 
 archive/
