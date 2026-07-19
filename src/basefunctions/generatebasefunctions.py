@@ -24,7 +24,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
 
-DATA_DIR = ROOT_DIR / "data/basefunctions/"
+DATA_DIR = ROOT_DIR / "data/basefunctions/inputfiles"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def generatetargetfunction(name: str, length: int, width: float):
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     # Define what flags this specific script accepts
-    parser.add_argument("--name", type=str, default="sine")
+    parser.add_argument("--name", type=str, default="all")
     parser.add_argument("--length", type=int, default=1000)
     parser.add_argument("--width", type=float, default=0.0001)
     args = parser.parse_args()
