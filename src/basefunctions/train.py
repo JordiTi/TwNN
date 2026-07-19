@@ -104,7 +104,7 @@ def run_trial(
         spikefilterhist[:,idx] = spikefilter2.copy()
 
     l1.reset()
-    return np.array(1/2*np.array(errorhist)**2).mean()
+    return np.array(1/2*np.array(errorhist)**2).mean(), spikefilterhist
 
 def printtrainingstatus(iteration, mse):
     print(f"Iteration:{iteration}\t mse:{mse}")
@@ -160,7 +160,7 @@ def main():
 
     for iteration in range(ntrials):
 
-        mse = run_trial(n_outputs,
+        mse, twitchhistory = run_trial(n_outputs,
                          l1, 
                          inputs, 
                          amplitudes, 
@@ -175,7 +175,9 @@ def main():
             printtrainingstatus(iteration, mse)
 
     np.save(os.path.join(OUTPUT_DIR, "losses.npy"), losses)
-
+    plt.plot(np.sum(twitchhistory, axis=0), label="TwitchOutput")
+    plt.plot(basefunction, label="Basefunction")
+    plt.show()
 
 if __name__ == "__main__":
     main()
