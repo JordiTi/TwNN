@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 '''
 Visualizes sine, gaussian and block pulse
-Images are plotted in root/data/basefunctions/
+Images are plotted in root/data/basefunctions/images/basefunctions/
 '''
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
@@ -14,7 +14,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
 
-DATA_DIR = ROOT_DIR / "data/basefunctions/"
+DATA_DIR = ROOT_DIR / "data/basefunctions/images/basefunctions/"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def get_base_function_paths() -> list[Path]:
