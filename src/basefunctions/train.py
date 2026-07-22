@@ -176,9 +176,9 @@ def main():
             printtrainingstatus(iteration, mse)
 
     np.savetxt(os.path.join(OUTPUT_DIR, 
-        f"losses_{basefunctionfilename}.npy"), losses)
+        f"losses_{basefunctionfilename}"), losses)
     np.savetxt(os.path.join(OUTPUT_DIR, 
-        f"twitchhistory_{basefunctionfilename}.npy"), twitchhistory)
+        f"twitchhistory_{basefunctionfilename}"), twitchhistory)
 
 if __name__ == "__main__":
     main()
