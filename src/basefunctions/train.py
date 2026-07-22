@@ -34,7 +34,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train base function fitting with SuperSpike + DFA")
-    parser.add_argument("--funcname", type=str, default="sine")
+    parser.add_argument("--funcname", type=str, default="sine", choices=["sine", "gauss", "block"])
     parser.add_argument("--lr", type=float, default=0.1)
     parser.add_argument("--threshold", type=int, default=5)
     parser.add_argument("--n_outputs", type=int, default=50)
@@ -179,6 +179,8 @@ def main():
         f"losses_{basefunctionfilename}"), losses)
     np.savetxt(os.path.join(OUTPUT_DIR, 
         f"twitchhistory_{basefunctionfilename}"), twitchhistory)
+    np.savetxt(os.path.join(OUTPUT_DIR, 
+            f"target_{basefunctionfilename}"), basefunction)
 
 if __name__ == "__main__":
     main()
