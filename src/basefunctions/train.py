@@ -40,7 +40,7 @@ def parse_args():
     parser.add_argument("--n_outputs", type=int, default=50)
     parser.add_argument("--n_inputs", type=int, default=100)
     parser.add_argument("--twitch_amp_max", type=float, default=0.1)
-    parser.add_argument("--twitch_amp_min", type=float, default=0.05)
+    parser.add_argument("--twitch_amp_min", type=float, default=0.01)
     parser.add_argument("--tau_min", type=int, default=20)
     parser.add_argument("--tau_max", type=int, default=50)
     parser.add_argument("--ntrials", type=int, default=1000)
@@ -64,8 +64,9 @@ def findfullfilename(INPUT_DIR, basefunctionname):
     if not matching_files:
         raise FileNotFoundError(f"No files starting with '{basefunctionname}' were found in the directory.")
     elif len(matching_files) == 1:
-        print(f" File found: {str(matching_files[0]).split("/")[-1]}")
-        return matching_files[0]
+        filename = str(matching_files[0]).split("/")[-1]
+        print(f" File found: {filename}")
+        return matching_files[0],  filename
     elif len(matching_files) > 1:
         raise ValueError(f"Expected at most 1 file, but found {len(matching_files)} matching files")
 
@@ -130,8 +131,8 @@ def main():
     tau_max = args.tau_max
     updatefrequency=args.updatefrequency
 
-    basefunctionfilename = findfullfilename(INPUT_DIR, basefunctionname)
-    _, basefunction = load_basefunction(basefunctionfilename)
+    fullpath, basefunctionfilename = findfullfilename(INPUT_DIR, basefunctionname)
+    _, basefunction = load_basefunction(fullpath)
     triallength = len(basefunction)
 
     cfg = SpikingLayerConfig
@@ -174,10 +175,10 @@ def main():
         if iteration % updatefrequency == 0:
             printtrainingstatus(iteration, mse)
 
-    np.save(os.path.join(OUTPUT_DIR, "losses.npy"), losses)
-    plt.plot(np.sum(twitchhistory, axis=0), label="TwitchOutput")
-    plt.plot(basefunction, label="Basefunction")
-    plt.show()
+    np.savetxt(os.path.join(OUTPUT_DIR, 
+        f"losses_{basefunctionfilename}.npy"), losses)
+    np.savetxt(os.path.join(OUTPUT_DIR, 
+        f"twitchhistory_{basefunctionfilename}.npy"), twitchhistory)
 
 if __name__ == "__main__":
     main()
