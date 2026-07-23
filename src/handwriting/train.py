@@ -6,12 +6,12 @@ import pandas as pd
 
 from shared.layers import HiddenLayer, OutputLayer
 
-#TODO: need to set defaults
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Train audio-to-handwriting SNN with SuperSpike + DFA")
-    parser.add_argument("--lr_hidden", type=float, default="0")
-    parser.add_argument("--lr_out", type=float, default="0")
-    parser.add_argument("--threshold", type=int, default="0")
+    parser.add_argument("--lr_hidden", type=float, default=0.001)
+    parser.add_argument("--lr_out", type=float, default=0.0001)
+    parser.add_argument("--threshold", type=int, default=10)
     parser.add_argument("--amplitude_minimum", type=float, default=1)
     parser.add_argument("--amplitude_maximum", type=float, default=10)
     parser.add_argument("--tau_min", type=int, default=20)
