@@ -2,6 +2,15 @@ import tkinter as tk
 import time
 import csv
 from datetime import datetime
+from pathlib import Path 
+import sys
+
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
+
+OUTPUT_DIR = ROOT_DIR / "data/handwriting/digits_raw/"
 
 class TrajectoryRecorder:
     def __init__(self, root):
@@ -57,7 +66,7 @@ class TrajectoryRecorder:
 
         filename = f"trajectory_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
-        with open(filename, "w", newline="") as f:
+        with open(OUTPUT_DIR / filename, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["time_seconds", "x", "y"])
             writer.writerows(self.trajectory)
