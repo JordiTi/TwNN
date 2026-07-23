@@ -6,14 +6,19 @@ import pandas as pd
 
 from shared.layers import HiddenLayer, OutputLayer
 
-
+#TODO: need to set defaults
 def parse_args():
     parser = argparse.ArgumentParser(description="Train audio-to-handwriting SNN with SuperSpike + DFA")
-    parser.add_argument("-l", "--lr-hidden", type=float, required=True, dest="lr_hidden")
-    parser.add_argument("-o", "--lr-out", type=float, required=True, dest="lr_out")
-    parser.add_argument("-m", "--amplitude-minimum", type=float, required=True, dest="amplitude_minimum")
-    parser.add_argument("-a", "--amplitude-maximum", type=float, required=True, dest="amplitude_maximum")
-    parser.add_argument("-t", "--total-digits", type=int, required=True, dest="totaldigits")
+    parser.add_argument("--lr_hidden", type=float, default="0")
+    parser.add_argument("--lr_out", type=float, default="0")
+    parser.add_argument("--threshold", type=int, default="0")
+    parser.add_argument("--amplitude_minimum", type=float, default=1)
+    parser.add_argument("--amplitude_maximum", type=float, default=10)
+    parser.add_argument("--tau_min", type=int, default=20)
+    parser.add_argument("--tau_max", type=int, default=100)
+    parser.add_argument("--ntrials", type=int, default=10000)
+    parser.add_argument("--updatefrequency", type=int, default=1)
+    parser.add_argument("--total-digits", type=int)
     return parser.parse_args()
 
 
