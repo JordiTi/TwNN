@@ -28,7 +28,7 @@ def parse_args():
 def run_script(script_name: str, forward_args: list = []):
 
     script_path = HANDWRITING_DIR / script_name
-
+    print(script_path)
     # Combine the python execution command, the script path, and the extra flags
     command = [sys.executable, str(script_path)] + forward_args
     

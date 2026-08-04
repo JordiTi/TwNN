@@ -9,7 +9,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
 
-WAV_DIR = ROOT_DIR / "data/handwriting/audio_raw"
+WAV_DIR = ROOT_DIR / "data/handwriting/audio_nosilence"
 OUTPUT_DIR = ROOT_DIR / "data/handwriting/audio_cut/"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
