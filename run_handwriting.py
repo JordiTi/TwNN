@@ -1,5 +1,7 @@
 """
 Run the handwriting pipeline
+
+===============PLEASE NOTE THAT SILENCE AT THE START AND END OF THE RAW AUDIO FILES IS TRIMMED USING AUDACITY===================
 """
 import argparse
 import subprocess
