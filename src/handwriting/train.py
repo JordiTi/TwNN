@@ -1,24 +1,40 @@
 import argparse
 import os
-
+from pathlib import Path
 import numpy as np
 import pandas as pd
+import sys
 
-from shared.layers import HiddenLayer, OutputLayer
+
+
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+SPECTROGRAM_DIR = ROOT_DIR / "data/handwriting/audio_spectrogram/"
+TRAJECTORY_DIR = ROOT_DIR / "data/handwriting/digits_normalized/"
+OUTPUT_DIR = ROOT_DIR / "data/handwriting/trainoutput/"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
+
+from src.shared.layers import HiddenLayer, OutputLayer
+from src.shared.layers import OutputLayer, SpikingLayerConfig
 
 
 def parse_args():
+
     parser = argparse.ArgumentParser(description="Train audio-to-handwriting SNN with SuperSpike + DFA")
+    parser.add_argument("--n_hidden", type=int, default=250)
+    parser.add_argument("--n_outputs", type=int, default=200)
     parser.add_argument("--lr_hidden", type=float, default=0.001)
     parser.add_argument("--lr_out", type=float, default=0.0001)
-    parser.add_argument("--threshold", type=int, default=10)
-    parser.add_argument("--amplitude_minimum", type=float, default=1)
-    parser.add_argument("--amplitude_maximum", type=float, default=10)
+    parser.add_argument("--threshold_in", type=int, default=20)
+    parser.add_argument("--twitch_amp_min", type=float, default=1)
+    parser.add_argument("--twitch_amp_max", type=float, default=10)
     parser.add_argument("--tau_min", type=int, default=20)
     parser.add_argument("--tau_max", type=int, default=100)
     parser.add_argument("--ntrials", type=int, default=10000)
     parser.add_argument("--updatefrequency", type=int, default=1)
-    parser.add_argument("--total-digits", type=int)
+    parser.add_argument("--totaldigits", type=int, default=10)
     return parser.parse_args()
 
 
@@ -38,7 +54,7 @@ def load_handwriting_data(textfolderpath):
     textdict = {}
     for file in os.listdir(textfolderpath):
         if file.endswith(".csv"):
-            textlabel = file.split(".")[0]
+            textlabel = file.split(".")[0].strip("digit").strip("_normalized")
             textdata = pd.read_csv(os.path.join(textfolderpath, file)).to_numpy()
             # Pad 85 on each side to make all sequences equally long (970 total), normalize to [-1, 1]
             textdata = np.concatenate(
@@ -60,7 +76,7 @@ def make_output_dir(base_path, totaldigits, lr_hidden, lr_out, amplitude_minimum
 
 def run_trial(number, textdict, audiodict, l1, l2, amplitudes, amplitude_maximum,
               exp_tau_rises, exp_tau_decays, one_minus_exp_rises, one_minus_exp_decays,
-              neuronthresholds, lr_hidden, lr_out, dt, nsensorneurons, nalphamneurons):
+              neuronthresholds, lr_hidden, lr_out, dt, nsensorneurons, nalphamneurons, triallength):
     target = textdict[number][:, 0]
     inputs = audiodict[number]
 
@@ -68,6 +84,7 @@ def run_trial(number, textdict, audiodict, l1, l2, amplitudes, amplitude_maximum
     spikefilter1 = np.zeros(nalphamneurons)
     spikefilter2 = np.zeros(nalphamneurons)
     incharges = np.zeros(nsensorneurons)
+    spikefilterhist = np.zeros([nalphamneurons, int(triallength)])
 
     for idx, inp in enumerate(inputs.T):
         incharges += inp
@@ -92,63 +109,99 @@ def run_trial(number, textdict, audiodict, l1, l2, amplitudes, amplitude_maximum
         l1.update_weight(scaled_error, lr_hidden, dt)
         l2.update_weight(scaled_error, lr_out, dt)
         errorhist.append(errorx)
+        spikefilterhist[:,idx] = spikefilter2.copy()
 
     l1.reset()
     l2.reset()
-    return np.mean(0.5 * np.array(errorhist) ** 2)
+    return np.mean(0.5 * np.array(errorhist) ** 2), spikefilterhist
 
 
 def main():
     args = parse_args()
 
-    melfolderpath = "/scratch/p309238/handwriting/data/audio/"
-    textfolderpath = "/scratch/p309238/handwriting/data/text/"
-    output_base_path = "/scratch/p309238/handwriting/threelayers/"
+    ntrials = args.ntrials
+    n_hidden = args.n_hidden
+    n_outputs = args.n_outputs
+    threshold = args.threshold_in
+    twitch_amp_min = args.twitch_amp_min
+    twitch_amp_max = args.twitch_amp_max
+    lr_hidden = args.lr_hidden
+    lr_out = args.lr_out
+    tau_min = args.tau_min
+    tau_max = args.tau_max
+    updatefrequency=args.updatefrequency
 
-    audiodict = load_audio_data(melfolderpath)
-    textdict = load_handwriting_data(textfolderpath)
+    # Load audio and handwriting data
+    audiodict = load_audio_data(SPECTROGRAM_DIR)
+    textdict = load_handwriting_data(TRAJECTORY_DIR)
 
-    nsensorneurons = len(audiodict["4"])
-    nalphamneurons = 200
-    nhiddenneurons = 250
-    ntrials = 50000
-    timesteps = len(audiodict["4"][1])
-    dt = 1
-    trialtime = timesteps / dt
-    neuronthresholds = 20
+    # Check number of inputs 
+    n_inputs = audiodict["0"].shape[0]
+    triallength = audiodict["0"].shape[1]
 
-    amplitudes = np.random.uniform(args.amplitude_minimum, args.amplitude_maximum, nalphamneurons)
-    amplitudes[: int(nalphamneurons / 2)] *= -1
 
-    l1 = HiddenLayer(nsensorneurons, nhiddenneurons, nalphamneurons)
-    l2 = OutputLayer(nhiddenneurons, nalphamneurons)
+    # Set config for shared spiking layers
+    cfg = SpikingLayerConfig
 
-    tau_rises = np.random.uniform(20, 100, nalphamneurons)
-    tau_decays = np.random.uniform(20, 100, nalphamneurons)
-    exp_tau_rises = np.exp(-dt / tau_rises)
-    exp_tau_decays = np.exp(-dt / tau_decays)
+    # Create neural network
+    l1 = HiddenLayer(n_inputs, n_hidden, n_outputs, config=cfg)
+    l2 = OutputLayer(n_hidden, n_outputs, config=cfg)
+
+    amplitudes = np.random.uniform(twitch_amp_min, twitch_amp_max, n_outputs)
+    amplitudes[: int(n_outputs / 2)] *= -1
+
+    tau_rises = np.random.uniform(tau_min, tau_max, n_outputs)
+    tau_decays = np.random.uniform(tau_min, tau_max, n_outputs)
+
+    exp_tau_rises = np.exp(-1/tau_rises)
+    exp_tau_decays = np.exp(-1/tau_decays)
+
     one_minus_exp_rises = 1 - exp_tau_rises
-    one_minus_exp_decays = 1 - exp_tau_decays
+    one_minus_exp_decays = 1- exp_tau_decays
 
     digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     numbers = digits[: args.totaldigits]
 
     outdir = make_output_dir(
-        output_base_path, args.totaldigits, args.lr_hidden, args.lr_out,
-        args.amplitude_minimum, args.amplitude_maximum,
+        OUTPUT_DIR, args.totaldigits, args.lr_hidden, args.lr_out,
+        args.twitch_amp_min, args.twitch_amp_max,
     )
 
     losses = np.zeros(ntrials)
-    for t in range(ntrials):
+
+    for iteration in range(ntrials):
+
+        if iteration % 100 == 0:
+            print(f"Iteration: {iteration}")
+        # Pick a random input
         number = np.random.choice(numbers)
-        losses[t] = run_trial(
-            number, textdict, audiodict, l1, l2, amplitudes, args.amplitude_maximum,
-            exp_tau_rises, exp_tau_decays, one_minus_exp_rises, one_minus_exp_decays,
-            neuronthresholds, args.lr_hidden, args.lr_out, dt, nsensorneurons, nalphamneurons,
+
+        mse, twitchhistory = run_trial(number,
+                                       textdict,
+                                       audiodict,
+                                       l1,
+                                       l2,
+                                       amplitudes,
+                                       twitch_amp_max,
+                                       exp_tau_decays,
+                                       exp_tau_rises,
+                                       one_minus_exp_rises,
+                                       one_minus_exp_decays,
+                                       threshold,
+                                       lr_hidden,
+                                       lr_out,
+                                       1,
+                                       n_inputs,
+                                       n_outputs,
+                                       triallength,
         )
+        
+        losses[iteration] = mse
 
-    np.save(os.path.join(outdir, "losses.npy"), losses)
-
+        if iteration > ntrials-20:
+            np.savetxt(os.path.join(outdir, f"twitches{iteration}.py"), twitchhistory)
+            np.savetxt(os.path.join(outdir, f"target{iteration}.py"), textdict[number])
+    np.savetxt(os.path.join(outdir, "losses.npy"), losses)
 
 if __name__ == "__main__":
     main()
