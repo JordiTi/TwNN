@@ -156,7 +156,7 @@ class HiddenLayer(SpikingLayer):
     def update_weight(self, error, lr, dt=1):
         """error: (nalphamneurons,) output-layer error, projected via fixed B."""
         delta = np.dot(error, self.B)
-        dw = np.multiply(self.lambda_2.T, delta)
+        dw = np.multiply(self.lambda_2, delta)
         self._accumulate_and_apply(dw, lr, dt)
 
 
