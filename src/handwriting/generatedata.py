@@ -4,6 +4,12 @@ import argparse
 import sys
 import subprocess
 
+"""
+Generates handwriting recognition data.
+Handles both the handwriting trajectory that you have to make yourself,
+as well as raw audio data into audio spectrograms. Ten digits from one speaker. 
+"""
+
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
 if str(ROOT_DIR) not in sys.path:
@@ -15,7 +21,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Train generate audio and image data for training")
     parser.add_argument("--datatype", type=str, default="digits", choices=["audio", "digits"])
     parser.add_argument("--audiooperation", type=str, default="all", choices=["equalizelength", "createspectrogram"])
-    parser.add_argument("--digitoperation", type=str, default="all", choices=["writedigit", "normalize", "upsample"])
+    parser.add_argument("--digitoperation", type=str, default="all", choices=["writedigit", "upsample", "normalize", "plot"])
     return parser.parse_known_args()
 
 # Run script with arguments
@@ -45,12 +51,16 @@ def main():
         if known_args.digitoperation in ["all", "writedigit"]:
             script_name = "handwritinggeneration/recordwriting.py"
             run_script(script_name, extra_args)
-        elif known_args.digitoperation in ["all", "normalize"]:
-            script_name = "handwritinggeneration/normalizetrajectory.py"
-            run_script(script_name, extra_args)
         elif known_args.digitoperation in ["all", "upsample"]:
             script_name = "handwritinggeneration/upsampletrajectory.py"
             run_script(script_name, extra_args)
+        elif known_args.digitoperation in ["all", "normalize"]:
+            script_name = "handwritinggeneration/normalizetrajectory.py"
+            run_script(script_name, extra_args)
+        elif known_args.digitoperation in ["all", "plot"]:
+            script_name = "handwritinggeneration/plotdigits.py"
+            run_script(script_name, extra_args)
+
 
 
 if __name__ == "__main__":
