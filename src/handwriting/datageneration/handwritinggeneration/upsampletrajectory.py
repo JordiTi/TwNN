@@ -1,19 +1,24 @@
 import numpy as np
 from scipy.interpolate import interp1d
-import os
-import glob
+from pathlib import Path
+import sys
+
+"""
+Upsamples pen trajectory to x number of points. 
+"""
+
+
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
+
+INPUT_DIR = ROOT_DIR / "data/handwriting/digits_raw/"
+OUTPUT_DIR = ROOT_DIR / "data/handwriting/digits_upsampled/"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 def upsample_trajectory(trajectory, target_points=800):
-    """
-    Upsample pen-tip trajectory to target number of points.
-    
-    Args:
-        trajectory: numpy array of shape (n, 2) with x, y coordinates
-        target_points: desired number of points in output
-    
-    Returns:
-        upsampled trajectory of shape (target_points, 2)
-    """
+
     n_points = len(trajectory)
     
     # Create interpolation function for each coordinate
@@ -29,25 +34,33 @@ def upsample_trajectory(trajectory, target_points=800):
     
     return np.column_stack([upsampled_x, upsampled_y])
 
-
-# Example usage:
-# trajectory = np.array([[x1, y1], [x2, y2], ...])
-# upsampled = upsample_trajectory(trajectory, target_points=800)
 # Load trajectory from CSV file
 def load_trajectory_from_csv(filepath):
     """Load pen trajectory from CSV file with time, x, y columns."""
     data = np.loadtxt(filepath, delimiter=',', skiprows=1)
     return data[:, 1:3]  # Return only x, y columns
 
-# Load and upsample
-trajectory_files = sorted(glob.glob('trajectory_*.csv'))
-for idx, file in enumerate(trajectory_files):
-    data = load_trajectory_from_csv(file)
-    upsampled = upsample_trajectory(data, target_points=800)
+def getfilename(filepath):
+    return str(filepath).split("/")[-1]
 
-    # Save upsampled trajectory
-    output_path = os.path.join(
-        os.path.dirname('./'),
-        file.replace('.csv', '_upsampled.csv')
-    )
-    np.savetxt(output_path, upsampled, delimiter=',', header='x,y', comments='')
+
+def main():
+    # Load and upsample
+
+    print(" Loading files...")
+    trajectory_files = INPUT_DIR.glob('digit*.csv')
+
+    for file in trajectory_files:
+
+        print(f" Processing {file}")
+        data = load_trajectory_from_csv(file)
+        upsampled = upsample_trajectory(data, target_points=800)
+
+        # Save upsampled trajectory
+        filename = getfilename(file)
+        output_path = OUTPUT_DIR / str(filename).replace('.csv', '_upsampled.csv')
+        np.savetxt(output_path, upsampled, delimiter=',', header='x,y', comments='')
+        print(f" Processed {filename}")
+
+if __name__ == "__main__":
+    main()
