@@ -5,14 +5,17 @@ import sys
 import matplotlib.pyplot as plt
 
 """
-Plots the normalized digit trajectories
+Plots all digit trajectories 
 """
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
 
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
-INPUT_DIR = ROOT_DIR / "data/handwriting/digits_normalized"
+NORM_DIR = ROOT_DIR / "data/handwriting/digits_normalized/"
+RAW_DIR = ROOT_DIR / "data/handwriting/digits_raw/"
+UPSAMPLED_DIR = ROOT_DIR / "data/handwriting/digits_upsampled/"
+OUTPUT_DIR = ROOT_DIR / "data/handwriting/"
 
 
 
@@ -38,23 +41,27 @@ def plot(axes, idx, df):
         axes[2, idx].set_xlabel('Time Step')
 
 def main():
-    # Get all trajectory files
-    trajectory_files = INPUT_DIR.glob("*.csv")
 
-    # Create a figure with subplots (3 rows: trajectory, x stroke, y stroke)
-    _, axes = plt.subplots(3, 5, figsize=(15, 10))
-    for idx, file in enumerate(trajectory_files):
-        if idx < 5:
-            continue
-        idx = idx - 5
-        # Read the CSV file
+    # Get all trajectories
+    directories = [RAW_DIR, UPSAMPLED_DIR, NORM_DIR]
 
-        df = pd.read_csv(file)
+    for directory in directories:
+        trajectory_files = directory.glob("*.csv")
+        
+        # Create a figure with subplots (3 rows: trajectory, x stroke, y stroke)
+        _, axes = plt.subplots(3, 5, figsize=(15, 10))
+        idx = 0 
+        for file in trajectory_files:
+            print(file)
+            if idx >= 5:
+                continue
+            # Read the CSV file
 
-        plot(axes, idx, df)
-
-    plt.tight_layout()
-    plt.show()
+            df = pd.read_csv(file)
+            plot(axes, idx, df)
+            idx += 1
+        plt.tight_layout()
+        plt.savefig(OUTPUT_DIR / directory.name / "digits.png")
 
 
 if __name__ == "__main__":
