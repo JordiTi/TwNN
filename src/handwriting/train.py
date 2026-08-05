@@ -199,9 +199,9 @@ def main():
         losses[iteration] = mse
 
         if iteration > ntrials-20:
-            np.savetxt(os.path.join(outdir, f"twitches{iteration}.py"), twitchhistory)
-            np.savetxt(os.path.join(outdir, f"target{iteration}.py"), textdict[number])
-    np.savetxt(os.path.join(outdir, "losses.npy"), losses)
+            np.savetxt(os.path.join(outdir, f"twitches{iteration}.txt"), twitchhistory)
+            np.savetxt(os.path.join(outdir, f"target{iteration}.txt"), textdict[number])
+    np.savetxt(os.path.join(outdir, "losses.txt"), losses)
 
 if __name__ == "__main__":
     main()
