@@ -1,6 +1,6 @@
 from shared.layers import SpikingLayerConfig
 
-HANDWRITING_LAYERs_CONFIG = SpikingLayerConfig(
+HANDWRITING_LAYERS_CONFIG = SpikingLayerConfig(
     threshold=10.0,
     tau_mem=25.0,
     tau_syn=25.0,
