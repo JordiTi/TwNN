@@ -38,7 +38,7 @@ def upsample_trajectory(trajectory, target_points=800):
 def load_trajectory_from_csv(filepath):
     """Load pen trajectory from CSV file with time, x, y columns."""
     data = np.loadtxt(filepath, delimiter=',', skiprows=1)
-    return data[:, 1:3]  # Return only x, y columns
+    return data[:, 2:4]  # Return only x, y columns
 
 def getfilename(filepath):
     return str(filepath).split("/")[-1]
