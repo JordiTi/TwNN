@@ -17,16 +17,18 @@ if str(ROOT_DIR) not in sys.path:
 DATA_DIR = ROOT_DIR / "data/basefunctions/images/basefunctions/"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+INPUT_DIR = ROOT_DIR / "data/basefunctions/inputfiles/"
+
 def get_base_function_paths() -> list[Path]:
 
-    return list(DATA_DIR.glob("*.txt"))
+    return list(INPUT_DIR.glob("*.txt"))
 
 def plotbasefunctions():
 
     file_paths = get_base_function_paths()
 
     for path in file_paths:
-        print(DATA_DIR, path.stem)
+        print(INPUT_DIR, path.stem)
         try:
             # 1. Load the data from the text file
             data = np.loadtxt(path)
@@ -51,5 +53,42 @@ def plotbasefunctions():
         except Exception as e:
             print(f"Could not plot file {path.name} due to error: {e}")
     
+def plot_all_basefunctions_combined():
+    """
+    Plots all base functions (sine, gaussian, block pulse) side by side
+    in one figure and saves it as combined_basefunctions.png
+    """
+    file_paths = get_base_function_paths()
+
+    if not file_paths:
+        print("No base function files found.")
+        return
+
+    n = len(file_paths)
+    fig, axes = plt.subplots(1, n, figsize=(6 * n, 5), sharey=True)
+
+    # Ensure axes is always iterable, even if there's only one file
+    if n == 1:
+        axes = [axes]
+
+    for ax, path in zip(axes, file_paths):
+        try:
+            data = np.loadtxt(path)
+            x = data[:, 0]
+            y = data[:, 1]
+
+            ax.plot(x, y, color="green", linewidth=2)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            # ax.axis("off")
+        except Exception as e:
+            print(f"Could not plot file {path.name} due to error: {e}")
+
+    plt.tight_layout()
+    fig.savefig(f"{str(DATA_DIR)}/combined_basefunctions.png")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     plotbasefunctions()
+    plot_all_basefunctions_combined()
