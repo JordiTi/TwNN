@@ -227,3 +227,7 @@ __marimo__/
 *.npy
 
 archive/
+
+# Exclude raw data
+!data/basefunctions/inputfiles/*
+!data/handwriting/audio_raw/*
